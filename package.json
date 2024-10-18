@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "backend/index.js",
   "scripts": {
-
     "dev": "set NODE_ENV=development && nodemon practice/index.js",
     "start": "set NODE_ENV=production && node backend/index.js",
-    "build":"npm install && npm install --prefix frontend && npm run build --prefix frontend"
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "keywords": [],
   "author": "Dilpreet Singh",
@@ -22,6 +21,7 @@
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
     "mailtrap": "^3.4.0",
+    "mongodb": "^6.9.0",
     "mongoose": "^8.7.0"
   },
   "devDependencies": {
