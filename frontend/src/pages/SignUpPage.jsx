@@ -14,6 +14,15 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const {signup,error,isLoading} = useAuthStore();
 
+  const getPasswordStrength  = (pass) => {
+    let strength = 0;
+    if (pass.length >= 6) strength++;
+    if (pass.match(/[a-z]/) && pass.match(/[A-Z]/)) strength++;
+    if (pass.match(/\d/)) strength++;
+    if (pass.match(/[^a-zA-Z\d]/)) strength++;
+    return strength;
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
 
@@ -22,6 +31,12 @@ const SignUpPage = () => {
         toast.error("All fields are required.");
         return;
       }
+
+      const strength = getPasswordStrength(password);
+      if (strength < 4) {
+        toast.error("Password is not strong enough. Make sure it meets all criteria.");
+        return;
+      } 
       await signup(email,password,name);
 
       navigate("/verify-email");
