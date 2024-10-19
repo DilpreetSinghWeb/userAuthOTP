@@ -18,17 +18,32 @@ export const signup = async (req, res) => {
       throw new Error("All fields are required");
     }
 
+    // Check if the user already exists
     const userAlreadyExists = await User.findOne({ email });
+
     if (userAlreadyExists) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+      if (!userAlreadyExists.isVerified) {
+        // User exists but hasn't verified their email
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+        userAlreadyExists.verificationToken = verificationToken;
+        userAlreadyExists.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+        await userAlreadyExists.save();
+
+        await sendVerificationEmail(userAlreadyExists.email, verificationToken);
+
+        return res.status(400).json({
+          success: false,
+          message: "Account already exists but is not verified. Verification email resent.",
+        });
+      }
+
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
 
+    // If user does not exist, create a new user
     const hashedPassword = await bcryptjs.hash(password, 10);
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
 
     const user = new User({
       email,
@@ -43,6 +58,7 @@ export const signup = async (req, res) => {
     // jwt
     generateTokenAndSetCookie(res, user._id);
 
+    // Send verification email
     await sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
@@ -51,9 +67,11 @@ export const signup = async (req, res) => {
       user: { ...user._doc, password: undefined },
     });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    console.error("Error in signup", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 export const verifyEmail = async (req, res) => {
   // 1 2 3 4 5 6
