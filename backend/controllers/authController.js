@@ -7,7 +7,7 @@ import {
   sendResetSuccessEmail,
   sendVerificationEmail,
   sendWelcomeEmail,
-} from "../mailtrap/emails.js";
+} from "../nodemailer/emails.js";
 import { User } from "../models/UserModel.js";
 
 export const signup = async (req, res) => {
