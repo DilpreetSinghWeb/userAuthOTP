@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../store/authStore";
 import Input from "../components/Input";
+import toast from "react-hot-toast";
 
 const SignUpPage = () => {
   const [name, setName] = useState("");
@@ -17,7 +18,12 @@ const SignUpPage = () => {
     e.preventDefault();
 
     try {
+      if (!name || !email || !password) {
+        toast.error("All fields are required.");
+        return;
+      }
       await signup(email,password,name);
+
       navigate("/verify-email");
     } catch (error) {
       console.log(error)
@@ -57,6 +63,7 @@ const SignUpPage = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+           
           />
             {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
           <PasswordStrengthMeter password={password} />
